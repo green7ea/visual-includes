@@ -1,0 +1,7 @@
+[package]
+name = "visual-includes"
+version = "0.1.0"
+authors = ["Emmanuel Boudreault <emmanuel.boudreault@polymtl.ca>"]
+
+[dependencies]
+termion = "1.5"
