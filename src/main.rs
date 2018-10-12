@@ -5,14 +5,21 @@ mod render;
 
 use header::headers_from_file;
 use render::RenderState;
-use std::io::Result;
 use std::io::{stdin, stdout};
 use termion::event::Key;
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
 
-fn main() -> Result<()> {
-    let mut window = RenderState::new(headers_from_file("sample.s")?);
+fn main() {
+    let mut args = std::env::args();
+    if args.len() != 2 {
+        println!("Usage: '{} [filename]'", args.nth(0).unwrap());
+        return;
+    }
+
+    let file = args.nth(1).unwrap();
+    let headers = headers_from_file(&file).expect(&format!("File '{}' not found.", file));
+    let mut window = RenderState::new(headers);
 
     let stdin = stdin();
     let mut stdout = stdout().into_raw_mode().unwrap();
@@ -33,6 +40,4 @@ fn main() -> Result<()> {
 
         window.print(&mut stdout);
     }
-
-    Ok(())
 }

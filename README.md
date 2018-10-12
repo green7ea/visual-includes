@@ -82,6 +82,5 @@ This is an ultra α release and most things still don't work:
 
 - no scrolling,
 - doesn't truncate lines,
-- reads sample.s from current directory,
 - doesn't work with other files,
 - can't output graphviz files.
