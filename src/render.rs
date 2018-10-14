@@ -1,5 +1,5 @@
-extern crate termion;
 extern crate std;
+extern crate termion;
 
 use header::Header;
 use std::io::Write;
@@ -20,8 +20,7 @@ impl RenderState {
     }
 
     pub fn print(&self, stdout: &mut termion::raw::RawTerminal<std::io::Stdout>) {
-
-        let height = termion::terminal_size().unwrap().1;
+        let (width, height) = termion::terminal_size().unwrap();
 
         write!(
             stdout,
@@ -46,13 +45,12 @@ impl RenderState {
                     write!(stdout, "{}*", termion::cursor::Goto(1, line as u16),);
                 }
 
-                let indent = ((header.depth * 2) + 1) as u16;
+                let indent = get_indent(header.depth);
                 write!(
                     stdout,
-                    "{}{} ({})",
+                    "{}{}",
                     termion::cursor::Goto(indent, line as u16),
-                    header.path,
-                    header.dependencies
+                    format_node(header, width),
                 );
             });
 
@@ -118,4 +116,29 @@ impl RenderState {
             .iter_mut()
             .for_each(|header| header.visible = header.depth == 1);
     }
+}
+
+fn get_indent(depth: u32) -> u16 {
+    ((depth * 2) + 1) as u16
+}
+
+fn format_node(header: &Header, width: u16) -> String {
+    let indent = get_indent(header.depth);
+    let deps = format!(" ({})", header.dependencies);
+    let padding_size = indent + deps.len() as u16;
+
+    let max_path_size = std::cmp::max(0, width - padding_size);
+
+    if max_path_size > header.path.len() as u16 {
+        return format!("{}{}", header.path, deps);
+    }
+
+    let truncate_symbol = "...";
+    let short_path: String = header
+        .path
+        .chars()
+        .skip((header.path.len() + truncate_symbol.len()) - max_path_size as usize)
+        .collect();
+
+    return format!("{}{}{}", truncate_symbol, short_path, deps);
 }

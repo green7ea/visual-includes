@@ -81,6 +81,4 @@ The same sample as above in our application with everything expanded:
 This is an ultra α release and most things still don't work:
 
 - no scrolling,
-- doesn't truncate lines,
-- doesn't work with other files,
 - can't output graphviz files.
