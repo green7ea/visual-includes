@@ -1,6 +1,3 @@
-extern crate std;
-extern crate termion;
-
 use header::Header;
 use std::io::Write;
 
@@ -19,7 +16,7 @@ impl RenderState {
         }
     }
 
-    pub fn print(&self, stdout: &mut termion::raw::RawTerminal<std::io::Stdout>) {
+    pub fn print(&mut self, stdout: &mut termion::raw::RawTerminal<std::io::Stdout>) {
         let (width, height) = termion::terminal_size().unwrap();
 
         write!(
@@ -28,6 +25,24 @@ impl RenderState {
             termion::cursor::Goto(1, 1),
             termion::clear::All,
         ).unwrap();
+
+        let selected_line = self.headers
+            .iter()
+            .enumerate()
+            .filter(|(_, header)| header.visible)
+            .map(|(i, header)| (self.selected == i, header))
+            .enumerate()
+            .filter(|(_, (selected, _))| *selected)
+            .map(|(line, (_, _))| line + 1)
+            .nth(0).unwrap();
+
+        if selected_line <= self.skip_lines {
+            self.skip_lines = selected_line - 1;
+        }
+
+        if selected_line >= self.skip_lines + height as usize {
+            self.skip_lines = selected_line - height as usize;
+        }
 
         self.headers
             .iter()
